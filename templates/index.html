@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="topnav">
+    {% if session.logged_in %}
+    <a href="/logout">Logout</a>
+    {% else %}
+    <a href="/login">Login</a>
+    <a href="/register">Sign up</a>
+    {% endif %}
+</div>
+<hr>
+
+{% if session.logged_in %}
+<h5>Welcome si {{session.lastname }}</h5>
+<form action="/upload" method="POST" enctype="multipart/form-data">
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+    {{ form.file.label() }}
+    {{ form.file() }}
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+{% endif %}
+
+{% endblock body %}
