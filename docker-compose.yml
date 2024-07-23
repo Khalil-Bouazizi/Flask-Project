@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  flask_app_devops:
+    container_name: flask_app_container
+    image: francescoxx/flask_live_app
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_URL=postgresql://postgres:khaliladmin@devops_bd:5432/postgres
+    depends_on:
+      - devops_bd
+
+  devops_bd:
+    container_name: devops_bd
+    image: postgres:12
+    ports:
+      - "5450:5432"
+    environment:
+      POSTGRES_PASSWORD: khaliladmin
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}
