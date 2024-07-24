@@ -16,6 +16,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from werkzeug.utils import secure_filename
+from forms import LoginForm
 
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
@@ -30,19 +31,9 @@ def send_registration_email(user_email):
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:khaliladmin@devops_bd:5432/postgres"
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = 'rgb5\\4?'
-
-    app.config['MAIL_SERVER'] = "smtp.gmail.com"
-    app.config['MAIL_PORT'] = 465
-    app.config['MAIL_USERNAME'] = "khalilbouazizi02@gmail.com"
-    app.config['MAIL_PASSWORD'] = "jvqz nekz umjw wnns"
-    app.config['MAIL_USE_TLS'] = False
-    app.config['MAIL_USE_SSL'] = True
-
-    db.init_app(app)  # Initialize db with the app
-    migrate = Migrate(app, db)  # Initialize Migrate with app and db
+    app.config.from_json('config.json')
+    db.init_app(app)
+    migrate = Migrate(app, db)
     bcrypt.init_app(app)
     csrf.init_app(app)
     mail.init_app(app)
