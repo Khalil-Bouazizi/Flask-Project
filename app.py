@@ -1,26 +1,25 @@
 from datetime import datetime
 import numpy as np
-from flask import Flask, render_template, url_for, redirect, flash, session, request, send_file, abort
-from flask_bcrypt import check_password_hash, Bcrypt
+from flask import Flask, render_template, url_for, redirect, flash, session, request, send_file
+from flask_bcrypt import Bcrypt, check_password_hash
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from flask_wtf import CSRFProtect
 import pandas as pd
 import codecs
 import os
-from os import environ
 from models import db, User
 from forms import RegisterForm, LoginForm, UploadFileForm
 from sklearn.ensemble import IsolationForest
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from werkzeug.utils import secure_filename
-from forms import LoginForm
+import json
 
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
 mail = Mail()
+migrate = Migrate()
 
 
 def send_registration_email(user_email):
@@ -31,9 +30,13 @@ def send_registration_email(user_email):
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_json('config.json')
+    with open('config.json') as f:
+        config = json.load(f)
+
+    app.config.update(config)
+
     db.init_app(app)
-    migrate = Migrate(app, db)
+    migrate.init_app(app, db)
     bcrypt.init_app(app)
     csrf.init_app(app)
     mail.init_app(app)
@@ -56,14 +59,14 @@ def create_app():
             return redirect(url_for('login'))
 
     @app.errorhandler(404)
-    def page_not_found(e):
+    def page_not_found():
         return render_template('404.html'), 404
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():
         form = RegisterForm()
         if form.validate_on_submit():
-            hashed_password = bcrypt.generate_password_hash(form.password.data)
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
             new_user = User(
                 firstname=form.firstName.data,
                 lastname=form.lastName.data,
@@ -74,17 +77,17 @@ def create_app():
                 role="ROLE_USER",
                 last_connection=datetime.utcnow()
             )
-
             try:
                 db.session.add(new_user)
                 db.session.commit()
                 flash('You have successfully registered', 'success')
                 send_registration_email(new_user.email)
-
                 return redirect(url_for('login'))
             except Exception as e:
                 db.session.rollback()
                 flash(f'Error: Registration failed. {str(e)}', 'error')
+                import traceback
+                traceback.print_exc()
 
         return render_template('register.html', title='Register', form=form)
 
@@ -166,20 +169,13 @@ def create_app():
 
             categorical_cols = df.select_dtypes(include=[object]).columns
             if not categorical_cols.empty:
-                encoder = OneHotEncoder(sparse=False, drop='first')
+                encoder = OneHotEncoder(drop='first')
                 encoded_columns = encoder.fit_transform(df[categorical_cols])
                 encoded_df = pd.DataFrame(encoded_columns, columns=encoder.get_feature_names_out(categorical_cols),
                                           index=df.index)
 
-                print("Categorical columns:", categorical_cols)
-                print("Encoded DataFrame shape:", encoded_df.shape)
-                print("Original DataFrame shape before drop:", df.shape)
-
                 df = df.drop(columns=categorical_cols)
-                print("Original DataFrame shape after drop:", df.shape)
-
                 df = pd.concat([df, encoded_df], axis=1)
-                print("Final DataFrame shape after concat:", df.shape)
 
             sql_statements = generate_sql_statements(df)
             sql_file_path = 'cleaned_data.sql'
