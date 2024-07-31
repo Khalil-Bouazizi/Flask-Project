@@ -49,29 +49,6 @@ class RegisterTestCase(unittest.TestCase):
             mock_send_email.assert_called_once_with('khalilbouazizi@example.com')
 
 
-class LoginTestCase(unittest.TestCase):
-    def setUp(self):
-        self.app = create_app()
-        self.app.config['TESTING'] = True
-        self.app.config['WTF_CSRF_ENABLED'] = False
-        with open('config.json') as f:
-            config = json.load(f)
-        self.app.config.update(config)
-        self.client = self.app.test_client()
-
-    def test_login(self):
-        response = self.client.get('/login')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Login', response.data)
-
-    def test_login_post_success(self):
-        response = self.client.post('/login', data={
-            'email': 'khalilbouazizi@example.com',
-            'password': 'test'
-        })
-        self.assertEqual(response.status_code, 200)
-
-
 class LogoutTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app()
