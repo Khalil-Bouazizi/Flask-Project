@@ -1,0 +1,17 @@
+{
+  "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:khalil2002@localhost:5432/khalil",
+  "SQLALCHEMY_TRACK_MODIFICATIONS": false,
+  "SECRET_KEY": "rgb5\\\\4?",
+  "MAIL_SERVER": "smtp.gmail.com",
+  "MAIL_PORT": 465,
+  "MAIL_USERNAME": "khalilbouazizi02@gmail.com",
+  "MAIL_PASSWORD": "jvqz nekz umjw wnns",
+  "MAIL_USE_TLS": false,
+  "MAIL_USE_SSL": true,
+  "RECAPTCHA_USE_SSL": false,
+  "RECAPTCHA_PUBLIC_KEY": "6LfimNkpAAAAAD9nIGmonWtf4R6BaLjVcygp4mqn",
+  "RECAPTCHA_PRIVATE_KEY": "6LfimNkpAAAAAG30p1oRH3bpclAJ4i-GsVeCmv3c",
+  "RECAPTCHA_OPTIONS": {
+    "theme": "black"
+  }
+}
