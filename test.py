@@ -1,19 +1,19 @@
+import json
 import unittest
-from unittest.mock import patch, MagicMock
-
-from app import app, db
-from forms import RegisterForm, LoginForm
-from models import User
-from flask import url_for
-from datetime import datetime
+from unittest.mock import patch
+from app import create_app, db, bcrypt
 
 
 class RegisterTestCase(unittest.TestCase):
 
     def setUp(self):
-        app.config['TESTING'] = True
-        app.config['WTF_CSRF_ENABLED'] = False
-        self.client = app.test_client()
+        self.app = create_app()
+        self.app.config['TESTING'] = True
+        self.app.config['WTF_CSRF_ENABLED'] = False
+        with open('config.json') as f:
+            config = json.load(f)
+        self.app.config.update(config)
+        self.client = self.app.test_client()
 
     def test_get_register(self):
         response = self.client.get('/register')
@@ -51,9 +51,13 @@ class RegisterTestCase(unittest.TestCase):
 
 class LoginTestCase(unittest.TestCase):
     def setUp(self):
-        app.config['TESTING'] = True
-        app.config['WTF_CSRF_ENABLED'] = False
-        self.client = app.test_client()
+        self.app = create_app()
+        self.app.config['TESTING'] = True
+        self.app.config['WTF_CSRF_ENABLED'] = False
+        with open('config.json') as f:
+            config = json.load(f)
+        self.app.config.update(config)
+        self.client = self.app.test_client()
 
     def test_login(self):
         response = self.client.get('/login')
@@ -70,10 +74,13 @@ class LoginTestCase(unittest.TestCase):
 
 class LogoutTestCase(unittest.TestCase):
     def setUp(self):
-        app.config['TESTING'] = True
-        app.config['WTF_CSRF_ENABLED'] = False
-        self.client = (
-            app.test_client())
+        self.app = create_app()
+        self.app.config['TESTING'] = True
+        self.app.config['WTF_CSRF_ENABLED'] = False
+        with open('config.json') as f:
+            config = json.load(f)
+        self.app.config.update(config)
+        self.client = self.app.test_client()
 
     def test_logout(self):
         response = self.client.get('/logout')

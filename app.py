@@ -29,24 +29,25 @@ def send_registration_email(user_email):
 
 
 def create_app():
-    app = Flask(__name__)
+    apps = Flask(__name__)
     with open('config.json') as f:
         config = json.load(f)
 
-    app.config.update(config)
+    apps.config.update(config)
 
-    db.init_app(app)
-    migrate.init_app(app, db)
-    bcrypt.init_app(app)
-    csrf.init_app(app)
-    mail.init_app(app)
+    db.init_app(apps)
+    migrate.init_app(apps, db)
+    bcrypt.init_app(apps)
+    csrf.init_app(apps)
+    mail.init_app(apps)
 
-    @app.route('/')
+    # Define routes and error handlers here
+    @apps.route('/')
     def home():
         form = UploadFileForm()
         return render_template('index.html', form=form)
 
-    @app.route('/back')
+    @apps.route('/back')
     def homeBack():
         if 'logged_in' in session and session['logged_in']:
             if session['role'] == 'ROLE_ADMIN':
@@ -58,15 +59,15 @@ def create_app():
         else:
             return redirect(url_for('login'))
 
-    @app.errorhandler(404)
-    def page_not_found():
+    @apps.errorhandler(404)
+    def page_not_found(e):
         return render_template('404.html'), 404
 
-    @app.route('/register', methods=['GET', 'POST'])
+    @apps.route('/register', methods=['GET', 'POST'])
     def register():
         form = RegisterForm()
         if form.validate_on_submit():
-            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            hashed_password = bcrypt.generate_password_hash(form.password.data)
             new_user = User(
                 firstname=form.firstName.data,
                 lastname=form.lastName.data,
@@ -91,7 +92,7 @@ def create_app():
 
         return render_template('register.html', title='Register', form=form)
 
-    @app.route('/login', methods=['GET', 'POST'])
+    @apps.route('/login', methods=['GET', 'POST'])
     def login():
         form = LoginForm(request.form)
         if form.validate_on_submit():
@@ -113,13 +114,13 @@ def create_app():
 
         return render_template('login.html', form=form)
 
-    @app.route('/logout')
+    @apps.route('/logout')
     def logout():
         session.clear()
         flash('You have been logged out.', 'info')
         return redirect(url_for('home'))
 
-    @app.route('/delete/<int:mid>')
+    @apps.route('/delete/<int:mid>')
     def delete_user(mid):
         user = User.query.filter_by(id=mid).first()
         if user:
@@ -131,7 +132,7 @@ def create_app():
 
         return redirect(url_for('homeBack'))
 
-    @app.route('/upload', methods=['GET', 'POST'])
+    @apps.route('/upload', methods=['GET', 'POST'])
     def upload_file():
         form = UploadFileForm()
         if form.validate_on_submit():
@@ -171,7 +172,8 @@ def create_app():
             if not categorical_cols.empty:
                 encoder = OneHotEncoder(drop='first')
                 encoded_columns = encoder.fit_transform(df[categorical_cols])
-                encoded_df = pd.DataFrame(encoded_columns, columns=encoder.get_feature_names_out(categorical_cols),
+                encoded_df = pd.DataFrame(encoded_columns.toarray(),
+                                          columns=encoder.get_feature_names_out(categorical_cols),
                                           index=df.index)
 
                 df = df.drop(columns=categorical_cols)
@@ -197,7 +199,7 @@ def create_app():
             sql_statements += f"INSERT INTO {table_name} ({columns}) VALUES ({values});\n"
         return sql_statements
 
-    return app
+    return apps
 
 
 if __name__ == '__main__':
