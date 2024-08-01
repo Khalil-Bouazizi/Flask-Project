@@ -1,5 +1,5 @@
 {
-  "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:khalil2002@localhost:5432/khalil",
+  "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:khaliladmin@devops_bd:5432/postgres",
   "SQLALCHEMY_TRACK_MODIFICATIONS": false,
   "SECRET_KEY": "rgb5\\\\4?",
   "MAIL_SERVER": "smtp.gmail.com",
