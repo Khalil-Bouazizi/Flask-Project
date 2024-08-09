@@ -2,19 +2,53 @@ pipeline {
     agent any
 
     stages {
-        stage('Version') {
-            steps {
-                sh 'python3 --version'
-            }
-        }
-        stage('Build') {
+        stage('Checkout') {
             steps {
                 git url: 'https://github.com/Khalil-Bouazizi/Flask-Project.git'
             }
         }
-        stage('Test') {
+
+        stage('SonarQube analysis') {
             steps {
-                sh 'python test.py'
+                script {
+                    def scannerHome = tool name: 'sonarqube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    withSonarQubeEnv('sonarqube') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.login=admin \
+                            -Dsonar.password=khalil \
+                            -Dsonar.projectKey=devops_CI \
+                            -Dsonar.exclusions=vendor/**,resources/**,**/*.java \
+                            -Dsonar.host.url=http://20.84.116.93:9000/
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build and Run Docker Containers') {
+            steps {
+                sh 'docker-compose up -d devops_bd'
+                sh 'docker build -t khalilbouazizii/flask_app_devops .'
+                sh 'docker-compose up -d flask_app_devops'
+            }
+        }
+
+        stage('Test Docker Image with Trivy') {
+            steps {
+                sh 'trivy image khalilbouazizii/flask_app_devops > resumetest.txt'
+            }
+        }
+
+        stage('Push Docker Image to DockerHub') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'docker_pwd', variable: 'DockerHubPwd')]) {
+                        sh 'docker login -u khalilbouazizii -p $DockerHubPwd'
+                    }
+                    sh 'docker tag khalilbouazizii/flask_app_devops:latest khalilbouazizii/flask_app_devops:latest'
+                    sh 'docker push khalilbouazizii/flask_app_devops:latest'
+                }
             }
         }
     }
