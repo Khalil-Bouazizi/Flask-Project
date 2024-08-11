@@ -3,7 +3,7 @@ version: '3.8'
 services:
   flask_app_devops:
     container_name: flask_app_container
-    image: francescoxx/flask_live_app
+    image: khalilbouazizii/flask_app_devops
     build: .
     ports:
       - "5000:5000"
