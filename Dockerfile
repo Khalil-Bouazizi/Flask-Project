@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install --upgrade pip
+RUN pip install --upgrade setuptools==70.0.0
 
 RUN pip install -r requirements.txt
 
