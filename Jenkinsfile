@@ -28,15 +28,13 @@ pipeline {
 
         stage('Build and Run Docker Containers') {
             steps {
-                sh 'docker-compose up -d devops_bd'
-                sh 'docker build -t khalilbouazizii/flask_app_devops .'
-                sh 'docker-compose up -d flask_app_devops'
+                sh 'docker-compose up -d '
             }
         }
 
         stage('Test Docker Image with Trivy') {
             steps {
-                sh 'trivy image khalilbouazizii/flask_app_devops > resumetest.txt'
+                sh 'trivy image khalilbouazizii/flask_app_devops'
             }
         }
 
