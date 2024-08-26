@@ -7,25 +7,6 @@ pipeline {
                 git url: 'https://github.com/Khalil-Bouazizi/Flask-Project.git'
             }
         }
-
-        stage('SonarQube analysis') {
-            steps {
-                script {
-                    def scannerHome = tool name: 'sonarqube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                    withSonarQubeEnv('sonarqube') {
-                        sh """
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.login=admin \
-                            -Dsonar.password=khalil \
-                            -Dsonar.projectKey=devops_CI \
-                            -Dsonar.exclusions=vendor/**,resources/**,**/*.java \
-                            -Dsonar.host.url=http://20.84.116.93:9000/
-                        """
-                    }
-                }
-            }
-        }
-
         stage('Build and Run Docker Containers') {
             steps {
                 sh 'docker-compose up -d --build'
