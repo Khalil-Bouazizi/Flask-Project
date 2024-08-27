@@ -14,7 +14,7 @@ pipeline {
                     def scannerHome = tool name: 'sonarqube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                     withSonarQubeEnv('sonarqube') {
                         sh """
-                            ${scannerHome}/bin/sonar-scanner \
+                            ${scannerHome}/bin/sonar-scanner -X \
                             -Dsonar.login=admin \
                             -Dsonar.password=1234 \
                             -Dsonar.projectKey=devops_CI \
