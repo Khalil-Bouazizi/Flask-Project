@@ -1,9 +1,3 @@
-Excel/CSV-to-SQL Automation Web App
-Internship Project
-Company: Insomea Computer Solutions, Tunisia
-Duration: June 2024 – August 2024
-
-Overview
 This project involved designing and deploying a full-stack web application that automates the conversion of Excel/CSV files into SQL-compatible formats. The app was built using Flask, containerized using Docker, and deployed on Microsoft Azure. DevOps practices were applied to ensure a robust CI/CD pipeline and secure deployments.
 
 Key Features
